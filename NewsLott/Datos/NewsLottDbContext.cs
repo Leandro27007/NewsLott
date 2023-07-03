@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using NewsLott.Datos.Modelos;
+using System.ComponentModel;
 
 namespace NewsLott.Datos
 {
@@ -7,15 +8,14 @@ namespace NewsLott.Datos
     {
         public NewsLottDbContext(DbContextOptions<NewsLottDbContext> opciones) : base(opciones)
         {
-            
+
         }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            base.OnModelCreating(modelBuilder); 
-        }
         DbSet<Loteria> loteria { get; set; }
         DbSet<ResultadoQuiniela> resultadoQuiniela { get; set; }
+        DbSet<EstadoResultado> estadoResultado { get; set; }
+        DbSet<EstadoConsumidor> estadoConsumidor { get; set; }
+        DbSet<Consumidor> consumidor { get; set; }
 
 
     }
