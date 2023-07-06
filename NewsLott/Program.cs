@@ -1,5 +1,9 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using NewsLott.Datos;
+using NewsLott.ServiciosSegundoPlano.HostedService;
+using NewsLott.ServiciosSegundoPlano.Implementaciones;
+using NewsLott.ServiciosSegundoPlano.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 string? conexion = builder.Configuration.GetConnectionString("Conexion");
@@ -8,8 +12,9 @@ string? conexion = builder.Configuration.GetConnectionString("Conexion");
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddDbContext<NewsLottDbContext>(c => c.UseSqlServer(conexion));
-
+builder.Services.AddDbContext<NewsLottDbContext>(c => c.UseSqlServer(conexion), ServiceLifetime.Transient);
+builder.Services.AddScoped<IResultadoWebScrapy, ResultadoWebScrappy>();
+builder.Services.AddHostedService<ScrapyHostedService>();
 
 var app = builder.Build();
 
@@ -29,9 +34,12 @@ var summaries = new[]
 
 
 
-
-app.MapGet("/weatherforecast", () =>
+app.MapGet("/weatherforecast", async (NewsLottDbContext context, IResultadoWebScrapy resultadoWebScrapy) =>
 {
+
+
+
+
     var forecast = Enumerable.Range(1, 5).Select(index =>
         new WeatherForecast
         (

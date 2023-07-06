@@ -6,8 +6,7 @@ namespace NewsLott.Datos.Modelos
     public class ResultadoQuiniela
     {
         [Key]
-        [MaxLength(20)]
-        public string IdResultado { get; set; }
+        public int ResultadoId { get; set; }
         [Required]
         [MaxLength(20)]
         public string Primera { get; set; }
@@ -23,8 +22,5 @@ namespace NewsLott.Datos.Modelos
         [ForeignKey("Loteria")]
         public string IdLoteria { get; set; }
         public Loteria Loteria { get; set; }
-        public EstadoResultado EstadoResultado { get; set; }
-        [ForeignKey("EstadoResultado")]
-        public int IdEstadoResultado { get; set; }
     }
 }

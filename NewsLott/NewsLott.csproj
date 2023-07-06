@@ -14,13 +14,13 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="ScrapySharp" Version="3.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="DTOs\" />
-    <Folder Include="Servicios\" />
-    <Folder Include="ServiciosSegundoPlano\" />
+    <Folder Include="Servicios\Interfaces\" />
+    <Folder Include="Servicios\Implementaciones\" />
   </ItemGroup>
 
 </Project>

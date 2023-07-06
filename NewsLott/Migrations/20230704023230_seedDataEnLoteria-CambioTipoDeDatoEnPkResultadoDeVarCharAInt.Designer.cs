@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NewsLott.Datos;
 
@@ -11,9 +12,11 @@ using NewsLott.Datos;
 namespace NewsLott.Migrations
 {
     [DbContext(typeof(NewsLottDbContext))]
-    partial class NewsLottDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230704023230_seedDataEnLoteria-CambioTipoDeDatoEnPkResultadoDeVarCharAInt")]
+    partial class seedDataEnLoteriaCambioTipoDeDatoEnPkResultadoDeVarCharAInt
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -66,6 +69,24 @@ namespace NewsLott.Migrations
                     b.ToTable("estadoConsumidor");
                 });
 
+            modelBuilder.Entity("NewsLott.Datos.Modelos.EstadoResultado", b =>
+                {
+                    b.Property<int>("IdEstadoResultado")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdEstadoResultado"));
+
+                    b.Property<string>("NombreEstado")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.HasKey("IdEstadoResultado");
+
+                    b.ToTable("estadoResultado");
+                });
+
             modelBuilder.Entity("NewsLott.Datos.Modelos.Loteria", b =>
                 {
                     b.Property<string>("IdLoteria")
@@ -88,13 +109,13 @@ namespace NewsLott.Migrations
                         new
                         {
                             IdLoteria = "gana-mas",
-                            FechaRegistro = new DateTime(2023, 7, 4, 17, 14, 12, 72, DateTimeKind.Local).AddTicks(8262),
+                            FechaRegistro = new DateTime(2023, 7, 3, 22, 32, 30, 415, DateTimeKind.Local).AddTicks(6430),
                             NombreLoteria = "Gana Mas"
                         },
                         new
                         {
                             IdLoteria = "loteria-nacional",
-                            FechaRegistro = new DateTime(2023, 7, 4, 17, 14, 12, 72, DateTimeKind.Local).AddTicks(8287),
+                            FechaRegistro = new DateTime(2023, 7, 3, 22, 32, 30, 415, DateTimeKind.Local).AddTicks(6454),
                             NombreLoteria = "Loteria Nacional"
                         });
                 });
@@ -109,6 +130,9 @@ namespace NewsLott.Migrations
 
                     b.Property<DateTime>("FechaResultado")
                         .HasColumnType("datetime2");
+
+                    b.Property<int>("IdEstadoResultado")
+                        .HasColumnType("int");
 
                     b.Property<string>("IdLoteria")
                         .IsRequired()
@@ -132,6 +156,8 @@ namespace NewsLott.Migrations
 
                     b.HasKey("ResultadoId");
 
+                    b.HasIndex("IdEstadoResultado");
+
                     b.HasIndex("IdLoteria");
 
                     b.ToTable("resultadoQuiniela");
@@ -150,11 +176,19 @@ namespace NewsLott.Migrations
 
             modelBuilder.Entity("NewsLott.Datos.Modelos.ResultadoQuiniela", b =>
                 {
+                    b.HasOne("NewsLott.Datos.Modelos.EstadoResultado", "EstadoResultado")
+                        .WithMany("ResultadosQuiniela")
+                        .HasForeignKey("IdEstadoResultado")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("NewsLott.Datos.Modelos.Loteria", "Loteria")
                         .WithMany("ResultadosQuiniela")
                         .HasForeignKey("IdLoteria")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("EstadoResultado");
 
                     b.Navigation("Loteria");
                 });
@@ -162,6 +196,11 @@ namespace NewsLott.Migrations
             modelBuilder.Entity("NewsLott.Datos.Modelos.EstadoConsumidor", b =>
                 {
                     b.Navigation("Consumidores");
+                });
+
+            modelBuilder.Entity("NewsLott.Datos.Modelos.EstadoResultado", b =>
+                {
+                    b.Navigation("ResultadosQuiniela");
                 });
 
             modelBuilder.Entity("NewsLott.Datos.Modelos.Loteria", b =>

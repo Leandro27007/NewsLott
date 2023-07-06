@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NewsLott.Datos;
 
@@ -11,9 +12,11 @@ using NewsLott.Datos;
 namespace NewsLott.Migrations
 {
     [DbContext(typeof(NewsLottDbContext))]
-    partial class NewsLottDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230704211412_eliminoFkEntreEstadoResultadoYResultadoQuinielaYEliminoTablaEstadoResultado")]
+    partial class eliminoFkEntreEstadoResultadoYResultadoQuinielaYEliminoTablaEstadoResultado
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
