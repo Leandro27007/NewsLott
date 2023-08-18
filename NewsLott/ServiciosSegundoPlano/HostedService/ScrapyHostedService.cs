@@ -1,17 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
-using NewsLott.Datos;
-using NewsLott.ServiciosSegundoPlano.Interfaces;
+﻿using NewsLott.ServiciosSegundoPlano.Interfaces;
 
 namespace NewsLott.ServiciosSegundoPlano.HostedService
 {
     public class ScrapyHostedService : BackgroundService, IDisposable
     {
-
-        private Timer? _timer = null;
-
-
         private IServiceProvider _serviceProvider;
-
         public ScrapyHostedService(IServiceProvider serviceProvider)
         {
             this._serviceProvider = serviceProvider;
@@ -24,13 +17,21 @@ namespace NewsLott.ServiciosSegundoPlano.HostedService
             {
                 using (var scope = _serviceProvider.CreateScope())
                 {
-                    var resultadoWebScrapy = scope.ServiceProvider.GetRequiredService<IResultadoWebScrapy>();
+                    var resultadoWebScrapy = scope.ServiceProvider.GetRequiredService<IScraper>();
 
-                    await resultadoWebScrapy.CargarResultadosAsync();
-
-                    await Task.Delay(new TimeSpan(0,1,0));
+                    await resultadoWebScrapy.RasparWeb();
                 }
+                await Task.Delay(new TimeSpan(0, 3, 0));
             }
         }
+
+        public override Task StopAsync(CancellationToken cancellationToken)
+        {
+            Console.WriteLine("Se paro el servicio en segundo plano, Queloque?");
+
+            return base.StopAsync(cancellationToken);
+        }
+
+
     }
 }

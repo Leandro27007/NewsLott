@@ -1,8 +1,4 @@
-﻿using NewsLott.Datos.Modelos;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
-
-namespace NewsLott.DTOs
+﻿namespace NewsLott.DTOs
 {
     public class ResultadoQuinielaDTO
     {

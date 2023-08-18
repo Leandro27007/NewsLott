@@ -1,15 +1,42 @@
-﻿using System.Text;
+﻿using OpenQA.Selenium;
+
+using OpenQA.Selenium.Support.UI;
 
 namespace NewsLott
 {
-    public class Utilidades
+    public static class Utilidades
     {
-        public static string InvertirCadena(string cadena)
+        public static bool EstaElElemento(WebDriverWait wait, By by)
         {
-            char[] arregloCaracteres = cadena.ToCharArray();
-            Array.Reverse(arregloCaracteres);
-            return new string(arregloCaracteres);
+			try
+			{
+                wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementExists(by));
+				return true;
+			}
+			catch (Exception)
+			{
+                return false;
+            }
+
         }
+
+        /// <summary>
+        /// Retorna verdadero si el valor se puede convertir a entero
+        /// </summary>
+        /// <param name="valor"></param>
+        /// <returns></returns>
+        public static bool EsEntero(string valor)
+        {
+            if (int.TryParse(valor, out _))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
 
     }
 }

@@ -1,6 +1,12 @@
+
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using NewsLott.Datos;
+using NewsLott.DAL;
+using NewsLott.DAL.Repositorio.Implementacion;
+using NewsLott.DAL.Repositorio.Interfaces;
+using NewsLott.DTOs;
+using NewsLott.Servicios.Implementaciones;
+using NewsLott.Servicios.Interfaces;
 using NewsLott.ServiciosSegundoPlano.HostedService;
 using NewsLott.ServiciosSegundoPlano.Implementaciones;
 using NewsLott.ServiciosSegundoPlano.Interfaces;
@@ -12,9 +18,21 @@ string? conexion = builder.Configuration.GetConnectionString("Conexion");
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddDbContext<NewsLottDbContext>(c => c.UseSqlServer(conexion), ServiceLifetime.Transient);
-builder.Services.AddScoped<IResultadoWebScrapy, ResultadoWebScrappy>();
+builder.Services.AddDbContext<NewsLottDbContext>(c => c.UseSqlServer(conexion)/*, ServiceLifetime.Transient*/);
+
+builder.Services.AddScoped<ILoteriaRepositorio, LoteriaRepositorio>();
+builder.Services.AddScoped<IResultadoLoteriaRepositorio, ResultadoLoteriaRepositorio>();
+
+builder.Services.AddScoped<IScrapeableWeb, PaginaWebConectate>();
+builder.Services.AddScoped<IScraper, Scraper>();
+
+builder.Services.AddSingleton<INavegador, NavegadorChrome>();
+builder.Services.AddSingleton<IWebDriverWsppService, WebDriverWsppService>();
+builder.Services.AddScoped<IWsppChat, WsppChat>();
+
 builder.Services.AddHostedService<ScrapyHostedService>();
+builder.Services.AddHostedService<WsppChatHostedService>();
+
 
 var app = builder.Build();
 
@@ -34,9 +52,8 @@ var summaries = new[]
 
 
 
-app.MapGet("/weatherforecast", async (NewsLottDbContext context, IResultadoWebScrapy resultadoWebScrapy) =>
+app.MapGet("/GetWeatherForecast", async (IWsppChat chat) =>
 {
-
 
 
 
@@ -48,10 +65,66 @@ app.MapGet("/weatherforecast", async (NewsLottDbContext context, IResultadoWebSc
             summaries[Random.Shared.Next(summaries.Length)]
         ))
         .ToArray();
+
+
     return forecast;
 })
 .WithName("GetWeatherForecast")
 .WithOpenApi();
+
+
+//app.MapGet("/WsspChat/ObtenerUltimoMensajeNoLeido", (IWsppChat wsppChat) => Results.Ok(wsppChat.ObtenerMsgNoLeido()));
+
+
+app.MapGet("WsppChat/BackgroupService/Interruptor", () => { bool respuesta = WsppChatHostedService.InterruptorWsppChatService(); return Results.Ok(respuesta); });
+
+app.MapGet("/Driver/ObtenerNombre", (INavegador webDriver) => Results.Ok(webDriver.ObtenerNombreDriver()));
+
+app.MapPost("/CerrarSesion", (IWebDriverWsppService webDriver) =>
+{
+    return Results.Ok(webDriver.CerrarSesionWspp());
+});
+
+app.MapPost("/CerrarDriver", (INavegador webDriver) =>
+{
+    return Results.Ok(webDriver.CerrarDriver());
+});
+app.MapPost("/ReiniciarDriver", (INavegador webDriver) =>
+{
+    return Results.Ok(webDriver.ReiniciarDriver());
+});
+
+app.MapPost("/vincularPorNumero", ([FromBody] string url, IWebDriverWsppService webDriver) => webDriver.VincularWsppPorNumero("8297552708"));
+
+app.MapPost("/vincularPorQr", ([FromBody] string url, IWebDriverWsppService webDriver) => webDriver.VincularWsppPorQr());
+
+
+
+app.MapGet("/ListarLoterias", async (ILoteriaRepositorio _lR) => 
+{
+
+    var consulta = await _lR.Consultar();
+
+    return new CodigoEstadoDTO()
+    {
+        ObjRespuesta = await consulta.ToListAsync(),
+        Mensaje = $"Cantidad de elementos {await consulta.CountAsync()}",
+    };
+
+});
+
+app.MapGet("/Resultados", async (IResultadoLoteriaRepositorio _rLR) =>
+{
+    var consulta = await _rLR.Consultar();
+
+    return new CodigoEstadoDTO()
+    {
+        ObjRespuesta = await consulta.ToListAsync(),
+        Mensaje = $"Cantidad de elementos {await consulta.CountAsync()}",
+    };
+
+
+});
 
 app.Run();
 
